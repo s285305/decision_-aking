@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision-Making Quiz Platform</title>
+    <style>
+        :root {
+            --color-primary: #2180a0;
+            --color-primary-hover: #1a6b85;
+            --color-success: #32b8c6;
+            --color-error: #c0152f;
+            --color-background: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-text: #134252;
+            --color-text-secondary: #626c7c;
+            --color-border: rgba(94, 82, 64, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--color-primary);
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(33, 128, 160, 0.05);
+        }
+
+        .btn-success {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #27a0af;
+        }
+
+        .btn-error {
+            background-color: var(--color-error);
+            color: white;
+        }
+
+        .filter-section {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+            color: var(--color-text);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkbox-item input {
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .quiz-container {
+            background-color: var(--color-surface);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--color-border);
+        }
+
+        .question-number {
+            color: var(--color-text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--color-text);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--color-surface);
+            font-size: 14px;
+        }
+
+        .option:hover {
+            border-color: var(--color-primary);
+            background-color: rgba(33, 128, 160, 0.03);
+        }
+
+        .option.selected {
+            border-color: var(--color-primary);
+            background-color: rgba(33, 128, 160, 0.08);
+        }
+
+        .option.correct {
+            border-color: var(--color-success);
+            background-color: rgba(50, 184, 198, 0.1);
+            color: var(--color-success);
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            border-color: var(--color-error);
+            background-color: rgba(192, 21, 47, 0.1);
+            color: var(--color-error);
+            font-weight: 600;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background-color: rgba(50, 184, 198, 0.1);
+            border-left: 4px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(192, 21, 47, 0.1);
+            border-left: 4px solid var(--color-error);
+            color: var(--color-error);
+        }
+
+        .explanation {
+            margin-top: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: space-between;
+        }
+
+        .btn-group button {
+            flex: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--color-border);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--color-primary);
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+        }
+
+        .redo-section {
+            background-color: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .redo-title {
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+
+        .redo-list {
+            list-style: none;
+        }
+
+        .redo-item {
+            padding: 10px;
+            background-color: var(--color-background);
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--color-error);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--color-surface);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--color-primary);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .quiz-container {
+                padding: 15px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Decision-Making Quiz Platform</h1>
+            <p class="subtitle">Test your knowledge on Project Cycle Management, Stakeholder Analysis & Decision-Making</p>
+        </header>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="startQuiz()">Start Quiz</button>
+            <button class="btn-secondary" onclick="showRedoQuestions()">Redo Questions</button>
+            <button class="btn-secondary" onclick="toggleFilters()">Filter Questions</button>
+            <button class="btn-secondary" onclick="resetProgress()">Reset All</button>
+        </div>
+
+        <div id="filterSection" class="filter-section" style="display: none;">
+            <label class="filter-label">Topics:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="filter-pcm" checked onchange="updateQuizzes()">
+                    <label for="filter-pcm">Project Cycle Management</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="filter-stakeholders" checked onchange="updateQuizzes()">
+                    <label for="filter-stakeholders">Stakeholders Analysis</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="filter-mcda" checked onchange="updateQuizzes()">
+                    <label for="filter-mcda">MCDA & Evaluation</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="filter-swot" checked onchange="updateQuizzes()">
+                    <label for="filter-swot">SWOT Analysis</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="statsSection" style="display: none;">
+            <div class="stat-box">
+                <div class="stat-value" id="statCorrect">0</div>
+                <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statPercentage">0%</div>
+                <div class="stat-label">Score</div>
+            </div>
+        </div>
+
+        <div id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div id="mainContent">
+            <div class="empty-state">
+                <div class="empty-state-icon">📚</div>
+                <p>Click "Start Quiz" to begin testing your knowledge!</p>
+                <div style="margin-top: 30px; padding: 20px; background-color: var(--color-surface); border-radius: 8px; border: 1px solid var(--color-border); text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <h3 style="color: var(--color-primary); margin-bottom: 15px;">📖 How to Share This Quiz on GitHub</h3>
+                    <div style="font-size: 14px; line-height: 1.8; color: var(--color-text);">
+                        <p><strong>✅ What to Upload:</strong></p>
+                        <ul style="margin-left: 20px; margin-bottom: 15px;">
+                            <li>This HTML file only (single file, no external dependencies)</li>
+                            <li>A README.md file with instructions</li>
+                            <li>Optional: LICENSE file</li>
+                        </ul>
+                        
+                        <p><strong>❌ No Need to Upload:</strong></p>
+                        <ul style="margin-left: 20px; margin-bottom: 15px;">
+                            <li>The PDF files (they're already embedded in the quiz questions)</li>
+                            <li>Node modules or dependencies (none required)</li>
+                            <li>Build tools</li>
+                        </ul>
+                        
+                        <p><strong>📝 No Modifications Needed!</strong></p>
+                        <p style="margin-left: 20px; margin-bottom: 15px;">This file works perfectly as-is. Just save it as <code style="background: rgba(33, 128, 160, 0.1); padding: 2px 6px; border-radius: 3px;">index.html</code></p>
+                        
+                        <p><strong>🚀 Steps to Share:</strong></p>
+                        <ol style="margin-left: 20px;">
+                            <li>Create GitHub repository (e.g., "decision-making-quiz")</li>
+                            <li>Upload index.html</li>
+                            <li>Enable GitHub Pages: Settings → Pages → Deploy from main</li>
+                            <li>Share live link: https://yourusername.github.io/decision-making-quiz</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="redoModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-title">Questions to Redo</div>
+                <div id="redoContent"></div>
+                <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeRedoModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizzes = [
+            {
+                id: 1,
+                topic: "pcm",
+                question: "What is the primary characteristic of a project?",
+                options: [
+                    "It is a permanent organization",
+                    "It has a temporary, organized nature with specific objectives and a clear beginning and end",
+                    "It is a routine activity",
+                    "It has unlimited budget"
+                ],
+                correct: 1,
+                explanation: "A project is defined as a temporary, organized human endeavor that seeks to accomplish specific objectives, produces deliverables, and has a clear beginning and end with bounded time, budget, resources, and performance requirements."
+            },
+            {
+                id: 2,
+                topic: "pcm",
+                question: "Which phase of the Project Cycle Management comes first?",
+                options: [
+                    "Implementation & Monitoring",
+                    "Final Evaluation",
+                    "Design",
+                    "Submission & Approval"
+                ],
+                correct: 2,
+                explanation: "The project cycle begins with Design (Phase 1), which includes problem identification and project formulation. This is followed by Appraisal, Submission & Approval, Implementation & Monitoring, and finally Final Evaluation."
+            },
+            {
+                id: 3,
+                topic: "stakeholders",
+                question: "What is a stakeholder in the context of project management?",
+                options: [
+                    "Only the project manager",
+                    "Any person, group, or organization who can be positively or negatively impacted by the project or cause an impact on it",
+                    "Only government agencies",
+                    "Only funding organizations"
+                ],
+                correct: 1,
+                explanation: "A stakeholder is anyone who has a just interest in the system, has the right to impose requirements on a solution, or has demonstrated their need or willingness to be involved in seeking a solution."
+            },
+            {
+                id: 4,
+                topic: "stakeholders",
+                question: "In a Power-Interest Matrix, where should 'key stakeholders' be positioned?",
+                options: [
+                    "High power, low interest",
+                    "Low power, high interest",
+                    "High power, high interest",
+                    "Low power, low interest"
+                ],
+                correct: 2,
+                explanation: "Key stakeholders (Players) are positioned in the high power, high interest quadrant. They should receive maximum attention from project management as they can significantly influence the project's success."
+            },
+            {
+                id: 5,
+                topic: "stakeholders",
+                question: "What are the five main categories of stakeholders identified in decision-making processes?",
+                options: [
+                    "Managers, employees, customers, suppliers, competitors",
+                    "Political actors, bureaucratic actors, special interests, general interests, and experts",
+                    "Rich, poor, urban, rural, international",
+                    "Young, old, educated, uneducated, employed"
+                ],
+                correct: 1,
+                explanation: "The five main categories are: (1) Political actors - based on representation of citizens, (2) Bureaucratic actors - based on legal responsibility, (3) Special interests - based on direct interests, (4) General interests - representing those who cannot defend themselves, and (5) Experts - based on professional knowledge."
+            },
+            {
+                id: 6,
+                topic: "stakeholders",
+                question: "What are the four types of resources stakeholders can mobilize?",
+                options: [
+                    "Material, human, financial, technological",
+                    "Political, economic, legal, and cognitive resources",
+                    "Land, labor, capital, entrepreneurship",
+                    "Public, private, NGO, international"
+                ],
+                correct: 1,
+                explanation: "The four types of stakeholder resources are: (1) Political resources - consensus and support, (2) Economic resources - financial means, (3) Legal resources - advantages from legal frameworks, (4) Cognitive resources - knowledge and information."
+            },
+            {
+                id: 7,
+                topic: "pcm",
+                question: "What is the purpose of a Problem Tree in project identification?",
+                options: [
+                    "To list all possible solutions to a problem",
+                    "To identify the core problem and establish cause-effect relationships between problems",
+                    "To determine the budget needed for the project",
+                    "To assign responsibilities to team members"
+                ],
+                correct: 1,
+                explanation: "A Problem Tree helps visualize the cause-effect relationships in a diagram. It identifies the core problem, places problems that are direct causes below it, and effects above it, helping the project team understand root causes and consequences."
+            },
+            {
+                id: 8,
+                topic: "pcm",
+                question: "What is the Objective Tree used for?",
+                options: [
+                    "To allocate project budget",
+                    "To describe the future situation once problems are resolved and to identify means-end relationships",
+                    "To schedule project activities",
+                    "To identify project risks"
+                ],
+                correct: 1,
+                explanation: "The Objective Tree transforms negative situations from the Problem Analysis into positive, desirable, and realistically achievable situations. It identifies potential objectives and links them as means and ends to help identify suitable project approaches."
+            },
+            {
+                id: 9,
+                topic: "mcda",
+                question: "What does SWOT stand for?",
+                options: [
+                    "Strengths, Weaknesses, Opportunities, Threats",
+                    "Strategy, Work, Operations, Tasks",
+                    "Skills, Workforce, Organization, Technology",
+                    "Sector, Workflow, Objectives, Teams"
+                ],
+                correct: 0,
+                explanation: "SWOT is an acronym for Strengths and Weaknesses (internal attributes) and Opportunities and Threats (external conditions) that affect strategic planning and decision-making."
+            },
+            {
+                id: 10,
+                topic: "swot",
+                question: "In SWOT analysis, which quadrant contains internal positive attributes?",
+                options: [
+                    "Strengths",
+                    "Weaknesses",
+                    "Opportunities",
+                    "Threats"
+                ],
+                correct: 0,
+                explanation: "Strengths are internal attributes that are helpful for the achievement of strategies and objectives. They represent positive aspects within the organization."
+            },
+            {
+                id: 11,
+                topic: "mcda",
+                question: "What is the Delphi Method used for in decision-making?",
+                options: [
+                    "To make financial decisions only",
+                    "To achieve convergence of different opinions and extrapolate useful information for decision-making",
+                    "To replace expert judgment",
+                    "To eliminate all conflicts"
+                ],
+                correct: 1,
+                explanation: "The Delphi Method is a participatory approach where stakeholders representing different interests evaluate the importance of indicators or criteria. It aims to achieve consensus and extract useful information for decision-making."
+            },
+            {
+                id: 12,
+                topic: "mcda",
+                question: "What is the main advantage of Multi-Criteria Decision Analysis (MCDA)?",
+                options: [
+                    "It eliminates the need for stakeholder input",
+                    "It simplifies complex problems to a single criterion",
+                    "It allows simultaneous consideration of multiple objectives and heterogeneous measures",
+                    "It guarantees the best solution"
+                ],
+                correct: 2,
+                explanation: "MCDA allows for comparative assessment of alternative projects or measures by considering multiple criteria simultaneously. It helps structure complex problems where technical and non-technical elements must be evaluated together."
+            },
+            {
+                id: 13,
+                topic: "pcm",
+                question: "What are the four types of project evaluations based on timing?",
+                options: [
+                    "Daily, weekly, monthly, yearly",
+                    "Baseline, intermediate, mid-term, final",
+                    "Ex-ante, formative (in-itinere), ex-post, retrospective",
+                    "Pre-project, during project, post-project, renewal"
+                ],
+                correct: 2,
+                explanation: "The four types are: (1) Ex-ante (baseline) - analysis of current conditions before the project, (2) Formative (in-itinere) - during implementation, (3) Ex-post (retrospective) - after implementation, and (4) Prospective - looking forward to support decision-making."
+            },
+            {
+                id: 14,
+                topic: "stakeholders",
+                question: "What is the primary purpose of Stakeholder Analysis?",
+                options: [
+                    "To identify only supporters of the project",
+                    "To develop a realistic participation strategy, assess chances and risks, and understand stakeholder views and interests",
+                    "To eliminate opposition to the project",
+                    "To reduce the number of stakeholders involved"
+                ],
+                correct: 1,
+                explanation: "Stakeholder Analysis serves to develop participation strategies, check if strategy meets real needs, assess project chances and risks, analyze groups, understand their views and conflicts, and identify their potentials and weaknesses."
+            },
+            {
+                id: 15,
+                topic: "mcda",
+                question: "In the SRF (Simos-Roy-Figueira) Playing Cards Method, what do white cards represent?",
+                options: [
+                    "Neutral criteria",
+                    "Rejected criteria",
+                    "The degree of importance difference between two successive criteria",
+                    "Placeholder cards"
+                ],
+                correct: 2,
+                explanation: "White cards are inserted between criterion cards to specify the degree of importance between two successive criteria. The number of white cards indicates the intensity: 0 cards = weak importance (1x), 1 card = moderate (2x), 2 cards = strong (3x), etc."
+            },
+            {
+                id: 16,
+                topic: "pcm",
+                question: "What is the Logical Framework (LogFrame) used for in project formulation?",
+                options: [
+                    "To allocate project funds",
+                    "To structure project information including objectives, indicators, means of verification, and assumptions",
+                    "To schedule project timeline only",
+                    "To determine project location"
+                ],
+                correct: 1,
+                explanation: "The LogFrame is a management tool that structures project information into a coherent narrative. It includes project structure, development/immediate objectives, outputs, activities, indicators of progress, means of verification, and assumptions."
+            },
+            {
+                id: 17,
+                topic: "stakeholders",
+                question: "What distinguishes Bureaucratic actors from Political actors?",
+                options: [
+                    "Bureaucratic actors work for the government only",
+                    "Bureaucratic actors base their intervention on legal responsibility and formal competence; Political actors base it on representation of citizens",
+                    "Political actors have no power",
+                    "Bureaucratic actors represent businesses"
+                ],
+                correct: 1,
+                explanation: "Bureaucratic actors claim intervention based on legal rules that give them specific responsibility in the decision procedure. Political actors claim intervention based on representing citizens and having significant consensus."
+            },
+            {
+                id: 18,
+                topic: "swot",
+                question: "How are internal and external factors organized in a SWOT matrix?",
+                options: [
+                    "All factors are treated equally",
+                    "Internal factors are listed separately from external factors; positive and negative aspects are distinguished",
+                    "Only external factors matter",
+                    "Alphabetically ordered"
+                ],
+                correct: 1,
+                explanation: "The SWOT matrix organizes factors into: Internal (Strengths & Weaknesses) and External (Opportunities & Threats), with Positive and Negative aspects distinguished. This 2x2 structure helps strategic analysis."
+            },
+            {
+                id: 19,
+                topic: "pcm",
+                question: "What are the four main steps of Project Design according to the Coop Africa manual?",
+                options: [
+                    "Planning, execution, control, closure",
+                    "Project Identification, Formulation, Implementation Planning, Planning of M&E",
+                    "Analysis, design, construction, evaluation",
+                    "Conception, feasibility, implementation, sustainability"
+                ],
+                correct: 1,
+                explanation: "The four project design steps are: Step 1 - Identification (situation analysis), Step 2 - Formulation (logical framework), Step 3 - Implementation Planning (work breakdown, responsibility, schedule, resources), Step 4 - Planning of M&E (monitoring and evaluation)."
+            },
+            {
+                id: 20,
+                topic: "mcda",
+                question: "What is a 'wicked problem' in the context of territorial decision-making?",
+                options: [
+                    "A problem that is intentionally difficult",
+                    "A problem that has multiple actors, conflicting values, and high uncertainty, with no definitive solution",
+                    "A problem that cannot be solved",
+                    "A problem affecting only rural areas"
+                ],
+                correct: 1,
+                explanation: "A wicked problem is characterized by: (1) no definitive formulation, (2) no stopping rule, (3) solutions are good or bad (not true/false), (4) many possible solutions, (5) essential uniqueness, (6) way of describing it determines solutions, and (7) planners are liable for consequences."
+            }
+        ];
+
+        let currentQuiz = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredQuestions = {};
+        let redoQuestions = [];
+        let quizActive = false;
+
+        function getFilteredQuizzes() {
+            const filters = {
+                pcm: document.getElementById('filter-pcm').checked,
+                stakeholders: document.getElementById('filter-stakeholders').checked,
+                mcda: document.getElementById('filter-mcda').checked,
+                swot: document.getElementById('filter-swot').checked
+            };
+
+            return quizzes.filter(q => filters[q.topic]);
+        }
+
+        function updateQuizzes() {
+            if (quizActive) {
+                alert("Cannot change filters during quiz. Please finish or reset.");
+            }
+        }
+
+        function startQuiz() {
+            currentQuiz = getFilteredQuizzes();
+            if (currentQuiz.length === 0) {
+                alert("Please select at least one topic filter.");
+                return;
+            }
+            currentQuiz = currentQuiz.sort(() => Math.random() - 0.5);
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestions = {};
+            redoQuestions = [];
+            quizActive = true;
+            document.getElementById('statsSection').style.display = 'flex';
+            document.getElementById('progressContainer').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= currentQuiz.length) {
+                showResults();
+                return;
+            }
+
+            const q = currentQuiz[currentQuestionIndex];
+            const progress = ((currentQuestionIndex + 1) / currentQuiz.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            let html = `
+                <div class="quiz-container">
+                    <div class="question-number">Question ${currentQuestionIndex + 1} of ${currentQuiz.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((option, idx) => `
+                            <div class="option ${answeredQuestions[q.id] === idx ? 'selected' : ''}" 
+                                 onclick="selectOption(${idx}, ${q.id})"
+                                 ${answeredQuestions[q.id] !== undefined ? 'style="pointer-events: none;"' : ''}>
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${answeredQuestions[q.id] !== undefined ? `
+                        <div class="feedback show ${answeredQuestions[q.id] === q.correct ? 'correct' : 'incorrect'}">
+                            <strong>${answeredQuestions[q.id] === q.correct ? '✓ Correct!' : '✗ Incorrect'}</strong>
+                            <div class="explanation">${q.explanation}</div>
+                        </div>
+                    ` : ''}
+                    <div class="btn-group">
+                        <button class="btn-secondary" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <button class="btn-primary" onclick="nextQuestion()" style="flex: 2;">${currentQuestionIndex === currentQuiz.length - 1 ? 'Finish' : 'Next'} →</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = html;
+            updateStats();
+        }
+
+        function selectOption(idx, qId) {
+            answeredQuestions[qId] = idx;
+            const q = currentQuiz.find(x => x.id === qId);
+            if (idx === q.correct) {
+                score++;
+            } else {
+                redoQuestions.push(qId);
+            }
+            showQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuiz.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function updateStats() {
+            const answered = Object.keys(answeredQuestions).length;
+            const percentage = answered > 0 ? Math.round((score / answered) * 100) : 0;
+            document.getElementById('statCorrect').textContent = score;
+            document.getElementById('statTotal').textContent = answered;
+            document.getElementById('statPercentage').textContent = percentage + '%';
+        }
+
+        function showResults() {
+            quizActive = false;
+            const answered = Object.keys(answeredQuestions).length;
+            const percentage = Math.round((score / answered) * 100);
+            
+            let html = `
+                <div class="quiz-container">
+                    <h2 style="text-align: center; color: var(--color-primary); margin-bottom: 20px;">Quiz Complete! 🎉</h2>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value">${score}</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${answered - score}</div>
+                            <div class="stat-label">Incorrect</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${percentage}%</div>
+                            <div class="stat-label">Score</div>
+                        </div>
+                    </div>
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn-primary" onclick="startQuiz()">Retake Quiz</button>
+                        <button class="btn-secondary" onclick="showRedoQuestions()">Review Mistakes</button>
+                    </div>
+                    ${redoQuestions.length > 0 ? `
+                        <div class="redo-section">
+                            <div class="redo-title">📚 Questions to Review:</div>
+                            <ul class="redo-list">
+                                ${redoQuestions.map(qId => {
+                                    const q = quizzes.find(x => x.id === qId);
+                                    return `<li class="redo-item">${q.question}</li>`;
+                                }).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = html;
+        }
+
+        function showRedoQuestions() {
+            if (redoQuestions.length === 0) {
+                alert("No questions to redo. Start a quiz first!");
+                return;
+            }
+
+            let html = '';
+            redoQuestions.forEach(qId => {
+                const q = quizzes.find(x => x.id === qId);
+                html += `
+                    <div style="background-color: var(--color-background); padding: 15px; margin-bottom: 15px; border-radius: 6px; border-left: 3px solid var(--color-error);">
+                        <strong style="color: var(--color-text);">${q.question}</strong>
+                        <div style="margin-top: 10px; font-size: 14px; color: var(--color-text-secondary);">
+                            <strong>Correct Answer:</strong> ${q.options[q.correct]}
+                        </div>
+                        <div style="margin-top: 8px; font-size: 13px; color: var(--color-text);">
+                            <strong>Explanation:</strong> ${q.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('redoContent').innerHTML = html;
+            document.getElementById('redoModal').classList.add('show');
+        }
+
+        function closeRedoModal() {
+            document.getElementById('redoModal').classList.remove('show');
+        }
+
+        function toggleFilters() {
+            const filter = document.getElementById('filterSection');
+            filter.style.display = filter.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress?')) {
+                answeredQuestions = {};
+                redoQuestions = [];
+                currentQuestionIndex = 0;
+                score = 0;
+                quizActive = false;
+                document.getElementById('statsSection').style.display = 'none';
+                document.getElementById('progressContainer').style.display = 'none';
+                document.getElementById('mainContent').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <p>Click "Start Quiz" to begin testing your knowledge!</p>
+                    </div>
+                `;
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('redoModal');
+            if (event.target == modal) {
+                closeRedoModal();
+            }
+        }
+    </script>
+</body>
+</html>
